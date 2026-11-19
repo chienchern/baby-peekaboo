@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<defs>
+  <clipPath id="ball"><circle cx="200" cy="195" r="150"/></clipPath>
+  <radialGradient id="shade" cx="38%" cy="30%" r="75%">
+    <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/>
+    <stop offset=".75" stop-color="#000" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".35"/>
+  </radialGradient>
+  <radialGradient id="ground"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  <filter id="g" x="0" y="0" width="100%" height="100%">
+    <feTurbulence type="fractalNoise" baseFrequency="1.1" numOctaves="2" seed="4"/>
+    <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.6 0 0 0 -0.7200000000000001"/>
+  </filter>
+</defs>
+<rect width="400" height="400" fill="#fdf1e3"/>
+<ellipse cx="210" cy="343" rx="127.5" ry="22" fill="url(#ground)"/>
+<circle cx="200" cy="195" r="150" fill="#3f8fd8"/>
+<g clip-path="url(#ball)">
+  <rect width="400" height="400" filter="url(#g)" opacity=".5"/>
+  <g fill="none" stroke="#2d6fae" stroke-width="3" opacity=".55">
+    <path d="M110,70 Q170,120 160,200 Q150,280 200,345"/>
+    <path d="M290,75 Q240,140 255,210 Q270,280 330,300"/>
+    <path d="M160,200 Q210,190 255,210"/>
+  </g>
+</g>
+<circle cx="200" cy="195" r="150" fill="url(#shade)"/>
+</svg>

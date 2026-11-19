@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+<defs>
+  <clipPath id="ball"><circle cx="200" cy="195" r="150"/></clipPath>
+  <radialGradient id="shade" cx="38%" cy="30%" r="75%">
+    <stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".35" stop-color="#fff" stop-opacity="0"/>
+    <stop offset=".75" stop-color="#000" stop-opacity=".08"/><stop offset="1" stop-color="#000" stop-opacity=".35"/>
+  </radialGradient>
+  <radialGradient id="ground"><stop offset="0" stop-color="#000" stop-opacity=".28"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+  
+</defs>
+<rect width="400" height="400" fill="#e6f4ea"/>
+<ellipse cx="210" cy="343" rx="127.5" ry="22" fill="url(#ground)"/>
+<g fill="none" stroke="#f2581b" stroke-width="15" stroke-linecap="round">
+  <path d="M188,52 C176,-2 224,-2 212,52"/>
+  <path d="M62,215 C10,210 12,270 66,262"/>
+  <path d="M338,215 C390,210 388,270 334,262"/>
+  <path d="M125,322 C95,372 150,385 160,338"/>
+  <path d="M275,322 C305,372 250,385 240,338"/>
+</g>
+<circle cx="200" cy="195" r="150" fill="#fbe9a6"/>
+<g clip-path="url(#ball)">
+  <path d="M30,140 Q200,75 370,140 L370,0 L30,0Z" fill="#ff8d22"/>
+  <g fill="none" stroke="#d9bf6c" stroke-width="2.5" opacity=".9">
+    <polygon points="200,128 246,161 228,215 172,215 154,161"/>
+    <path d="M200,128 L200,85 M246,161 L290,148 M228,215 L250,262 M172,215 L150,262 M154,161 L110,148"/>
+    <path d="M250,262 L230,320 M150,262 L170,320 M290,148 L330,190 M110,148 L70,190"/>
+  </g>
+  <g>
+    <ellipse cx="148" cy="205" rx="16" ry="20" fill="#1c1c1c"/><circle cx="153" cy="198" r="5.5" fill="#fff"/>
+    <ellipse cx="252" cy="205" rx="16" ry="20" fill="#1c1c1c"/><circle cx="257" cy="198" r="5.5" fill="#fff"/>
+  </g>
+  <path d="M148,243 Q200,212 252,243 Q268,262 240,276 Q200,292 160,276 Q132,262 148,243Z" fill="#ff8a1a" stroke="#1c1c1c" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M158,262 Q200,276 242,262" fill="none" stroke="#1c1c1c" stroke-width="3.5" stroke-linecap="round"/>
+  <path d="M188,240 q4,-3 7,0 M205,240 q4,-3 7,0" fill="none" stroke="#1c1c1c" stroke-width="3" stroke-linecap="round"/>
+</g>
+<circle cx="200" cy="195" r="150" fill="url(#shade)"/>
+</svg>

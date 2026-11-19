@@ -1,0 +1,3 @@
+config.local.js
+photos/*
+!photos/.gitkeep
