@@ -158,16 +158,33 @@ $('anyway').addEventListener('click', () => { triedAnyway = true; showStart(); }
 loadSets().then(showStart);
 
 // Press-and-hold buttons (so a toddler doesn't leave the game by accident)
-function holdButton(el, ms, action) {
-  let timer = null;
+// A quick tap shows a hint instead of doing anything.
+function holdButton(el, ms, action, hint) {
+  let timer = null, started = 0;
   el.style.setProperty('--hold', ms + 'ms');
-  const cancel = () => { clearTimeout(timer); timer = null; el.classList.remove('holding'); };
+  const reset = () => { clearTimeout(timer); timer = null; el.classList.remove('holding'); };
   el.addEventListener('pointerdown', e => {
-    e.preventDefault(); el.classList.add('holding');
-    timer = setTimeout(() => { cancel(); action(); }, ms);
+    e.preventDefault();
+    try { el.setPointerCapture(e.pointerId); } catch (err) {}   // keep holding even if the finger wobbles off the edge
+    started = Date.now(); el.classList.add('holding');
+    timer = setTimeout(() => { reset(); action(); }, ms);
   });
-  ['pointerup', 'pointerleave', 'pointercancel'].forEach(ev => el.addEventListener(ev, cancel));
+  el.addEventListener('pointerup', () => {
+    const wasHolding = !!timer; reset();
+    if (wasHolding && hint && Date.now() - started < ms) showHint(el, hint);
+  });
+  el.addEventListener('pointercancel', reset);
+  el.addEventListener('lostpointercapture', () => { if (timer) reset(); });
   el.addEventListener('contextmenu', e => e.preventDefault());
+}
+function showHint(el, text) {
+  let tip = el.parentElement.querySelector('.hint');
+  if (!tip) { tip = document.createElement('div'); tip.className = 'hint'; el.parentElement.appendChild(tip); }
+  tip.textContent = text;
+  const r = el.getBoundingClientRect(), pr = el.parentElement.getBoundingClientRect();
+  tip.style.top = (r.bottom - pr.top + 10) + 'px';
+  tip.style.right = (pr.right - r.right) + 'px';
+  tip.classList.remove('show'); void tip.offsetWidth; tip.classList.add('show');
 }
 
 // ============ Game ============
@@ -299,7 +316,7 @@ document.addEventListener('mouseleave', () => {
 addEventListener('contextmenu', e => e.preventDefault());
 
 $('restart').addEventListener('click', () => { if (playing) { newRound(); sounds.pop(); } });
-holdButton($('home'), 1000, goHome);
+holdButton($('home'), 1000, goHome, 'Press and hold to go home');
 
 // ============ Confetti ============
 const cv = $('confetti'), cctx = cv.getContext('2d');

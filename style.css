@@ -81,16 +81,27 @@ button { font: inherit; color: inherit; border: none; background: none; cursor: 
   background: rgba(255,255,255,.75); font-size: 32px; line-height: 56px;
   box-shadow: 0 3px 10px rgba(0,0,0,.2);
 }
-.corner.left  { left:  max(14px, env(safe-area-inset-left)); }
-.corner.right { right: max(14px, env(safe-area-inset-right)); }
+/* Both buttons sit top-right: on iPad, full-screen Safari keeps the top-left corner for its own exit button */
+.corner.first  { right: max(14px, env(safe-area-inset-right)); }
+.corner.second { right: calc(max(14px, env(safe-area-inset-right)) + 70px); }
+.corner { touch-action: none; }
 
 /* Press-and-hold buttons fill up while held */
-.hold { position: relative; }
+.hold:not(.corner) { position: relative; }
 .hold::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit;
   background: rgba(125, 95, 230, .45); transform: scale(0); pointer-events: none;
 }
 .hold.holding::after { transform: scale(1); transition: transform var(--hold) linear; }
+
+.hint {
+  position: absolute; z-index: 30; pointer-events: none; white-space: nowrap;
+  background: #2a4d8f; color: white; font-size: 1rem; font-weight: 600;
+  padding: .5rem .8rem; border-radius: .7rem; opacity: 0;
+}
+.hint.show { animation: hint 2.2s ease forwards; }
+@keyframes hint { 0% { opacity: 0; transform: translateY(-4px); } 10%, 75% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+#start .hint { position: fixed; }
 
 #confetti { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
 

@@ -8,7 +8,7 @@ let selectedSetId = null;
 let recording = null;            // { mr, item, timer } while the mic is on
 const setOf = () => SETS.find(s => s.id === selectedSetId) || SETS[0];
 
-holdButton($('grownups'), 1500, openSetup);
+holdButton($('grownups'), 1500, openSetup, 'Keep holding to open');
 
 function openSetup() {
   if (recording) stopRecording();

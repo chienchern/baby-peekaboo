@@ -20,7 +20,7 @@ Open the link in Safari (iPhone/iPad) or Chrome (Android). For a full-screen app
 
 To keep a toddler inside the game, use **Guided Access** on iPhone/iPad (Settings → Accessibility) or **App pinning** on Android.
 
-In the game, the ↻ button (top right) starts a new round. To go back to the start screen, **press and hold** the ⌂ button (top left) for a second, so little fingers don't leave by accident.
+In the game, the two buttons are in the top-right corner. ↻ starts a new round. To go back to the start screen, **press and hold** ⌂ for a second; a quick tap just shows a reminder, so little fingers don't leave by accident.
 
 On a computer, the start screen explains the game is meant for touch devices, but you can still try it with a mouse.
 
