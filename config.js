@@ -1,48 +1,50 @@
 // ============================================================
-//  Ball Peekaboo settings: edit this file to make it your own.
+//  Peekaboo settings
 // ============================================================
 //
-//  BALLS
-//  Each ball needs a `name` (shown on screen). Then give it ONE OR BOTH of:
-//    photo:   path to a picture, e.g. "photos/red-ball.jpg"
-//    drawing: a built-in cartoon used if there's no photo, or the photo fails to load.
-//             Choices: "soccer", "basketball", "tennis", "football", "plain"
-//             ("plain" is a simple shiny ball. Set its colour with `color`.)
-//  Optional:
-//    focus:   which part of the photo to keep centred in the circle, as
-//             "left% top%". Default "50% 50%" (the middle). E.g. "50% 30%" = higher up.
-//    color:   colour for the "plain" drawing, e.g. "#e63946" or "red".
-//
-//  If there are more balls than circles, a random set is picked each round.
-//
-//  KEEPING YOUR OWN PHOTOS PRIVATE
-//  Put photos in the photos/ folder and list them in a file called config.local.js
-//  (see config.local.example.js). Both are ignored by git, so they're never uploaded,
-//  but the game uses them on your computer instead of the drawings.
+//  SETS
+//  The start screen shows one card per set. Each set has a `name` and a list of `items`.
+//  Each item has:
+//    name:    shown on screen when it's revealed
+//    picture: path to an image (photo or drawing). It's cropped to a circle, so keep the
+//             subject in the middle with a little space around it.
+//    sound:   optional recording of the name, e.g. "sounds/grandma.m4a". Only played
+//             when speakNames (below) is true.
 
 const GAME_CONFIG = {
-  title: "Ball Peekaboo",
+  title: "Peekaboo",
 
-  circlesPerRound: 4,          // how many circles on screen at once (1 to 9)
+  circlesPerRound: 4,          // how many circles at once (1 to 9). Sets with more items pick a random few each round.
 
   colors: {
     background: "#bfe6ff",
-    cover: "#7d5fe6",          // the solid circle hiding each ball
-    cursor: "#ffeb3b",
+    cover: "#7d5fe6",          // the solid circle hiding each picture
   },
 
-  effects: true,               // the soft chimes and pops (false = silent)
+  effects: true,               // the soft pops and chimes (false = off)
   effectsVolume: 0.6,          // 0 to 1
+  speakNames: false,           // true = play each item's `sound` recording when it's revealed and tapped
+  voiceVolume: 1,              // volume of the recordings, 0 to 1
 
-  balls: [
-    { name: "Yoga ball",   photo: "pictures/yoga-ball.svg" },
-    { name: "Basketball",  photo: "pictures/little-basketball.svg" },
-    { name: "Duck ball",   photo: "pictures/duck-ball.svg" },
-    { name: "Soccer ball", photo: "pictures/soccer-ball.svg" },
-    { name: "Basketball",  photo: "pictures/big-basketball.svg" },
-
-    // Built-in cartoons you can add too:
-    // { name: "Tennis ball",       drawing: "tennis" },
-    // { name: "American football", drawing: "football" },
+  sets: [
+    {
+      name: "Balls",
+      items: [
+        { name: "Yoga ball",   picture: "pictures/yoga-ball.svg" },
+        { name: "Basketball",  picture: "pictures/little-basketball.svg" },
+        { name: "Duck ball",   picture: "pictures/duck-ball.svg" },
+        { name: "Soccer ball", picture: "pictures/soccer-ball.svg" },
+        { name: "Basketball",  picture: "pictures/big-basketball.svg" },
+      ],
+    },
+    {
+      name: "Family",
+      items: [
+        { name: "Mommy",   picture: "pictures/mommy.svg" },
+        { name: "Daddy",   picture: "pictures/daddy.svg" },
+        { name: "Grandma", picture: "pictures/grandma.svg" },
+        { name: "Grandpa", picture: "pictures/grandpa.svg" },
+      ],
+    },
   ],
 };

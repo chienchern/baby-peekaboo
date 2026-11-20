@@ -2,330 +2,49 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Ball Peekaboo</title>
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<style>
-  :root { --bg: #bfe6ff; --cover: #7d5fe6; --cursor: #ffeb3b; --size: 40vmin; }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  html, body { width: 100%; height: 100%; overflow: hidden; user-select: none; }
-  body { background: var(--bg); font-family: system-ui, sans-serif; cursor: none; }
-
-  /* ---------- Start screen ---------- */
-  #start {
-    position: fixed; inset: 0; z-index: 50;
-    display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2rem;
-    background: var(--bg);
-  }
-  #start h1 { font-size: 4rem; color: #2a4d8f; text-align: center; }
-  #start p { font-size: 1.5rem; color: #2a4d8f; }
-  #start .go {
-    width: 220px; height: 220px; border-radius: 50%;
-    background: #ff7a59; color: white; font-size: 3rem; font-weight: bold;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: 0 10px 0 #c95238; animation: pulse 1.4s ease-in-out infinite;
-  }
-  #start small { color: #557; font-size: 1rem; }
-  #start { cursor: auto; }
-  #start .go { cursor: pointer; }
-  #error { color: #b00020; font-size: 1.1rem; max-width: 40rem; text-align: center; white-space: pre-line; }
-
-  /* ---------- Board ---------- */
-  #board { position: fixed; inset: 0; display: grid; place-items: center; padding: 2vmin 2vmin 5vmin; }
-  .slot { position: relative; width: var(--size); height: var(--size); border-radius: 50%; }
-  .ball {
-    position: absolute; inset: 0; border-radius: 50%;
-    background: white center / cover no-repeat;
-    box-shadow: 0 12px 24px rgba(0,0,0,.25);
-  }
-  .cover {
-    position: absolute; inset: -2px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--cover), white 30%), var(--cover) 70%);
-    box-shadow: 0 12px 0 color-mix(in srgb, var(--cover), black 30%), 0 18px 30px rgba(0,0,0,.25);
-    transition: transform .35s cubic-bezier(.5,1.8,.5,1), opacity .25s;
-  }
-  .slot.open .cover { transform: scale(0); opacity: 0; }
-  .slot.open .ball  { animation: wobble .6s ease-in-out; }
-  .slot.kept .ball  { box-shadow: 0 0 0 14px #ffd23f, 0 0 60px 20px #ffe680; }
-  .slot.cheer .ball { animation: bounce .8s ease-out; }
-
-  @keyframes wobble { 0%{transform:rotate(0) scale(.6)} 40%{transform:rotate(-12deg) scale(1.08)} 70%{transform:rotate(8deg)} 100%{transform:rotate(0) scale(1)} }
-  @keyframes bounce { 0%{transform:translateY(0)} 25%{transform:translateY(-22%) scale(1.05)} 50%{transform:translateY(0) scale(1.08,.92)} 70%{transform:translateY(-8%)} 100%{transform:translateY(0)} }
-  @keyframes pulse  { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
-
-  /* ---------- Big cursor ---------- */
-  #cursor {
-    position: fixed; left: 0; top: 0; z-index: 100; pointer-events: none;
-    width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%;
-    background: var(--cursor); border: 6px solid #e65100;
-    box-shadow: 0 0 0 4px white, 0 4px 14px rgba(0,0,0,.35);
-    transition: width .15s, height .15s, margin .15s;
-  }
-  #cursor.big { width: 100px; height: 100px; margin: -50px 0 0 -50px; }
-
-  .label {
-    position: absolute; left: 50%; bottom: -4%; transform: translate(-50%, 30%) scale(.6);
-    padding: .2em .8em; border-radius: 999px; white-space: nowrap;
-    background: white; color: #2a4d8f; font-weight: 800; font-size: calc(var(--size) * .11);
-    box-shadow: 0 4px 12px rgba(0,0,0,.2); opacity: 0; pointer-events: none;
-    transition: opacity .2s, transform .3s cubic-bezier(.5,1.8,.5,1);
-  }
-  .slot.open .label, .slot.kept .label { opacity: 1; transform: translate(-50%, 30%) scale(1); }
-
-  #restart {
-    position: fixed; top: 16px; right: 16px; z-index: 60;
-    width: 64px; height: 64px; border-radius: 50%; border: none;
-    background: rgba(255,255,255,.75); color: #2a4d8f; font-size: 38px; line-height: 64px;
-    box-shadow: 0 3px 10px rgba(0,0,0,.2); cursor: none;
-  }
-  #restart:hover { background: white; }
-  #restart[hidden] { display: none; }
-
-  #confetti { position: fixed; inset: 0; z-index: 40; pointer-events: none; }
-</style>
+<title>Peekaboo</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Peekaboo">
+<meta name="theme-color" content="#bfe6ff">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<div id="start">
-  <h1 id="title">Ball Peekaboo</h1>
-  <div class="go">Play</div>
-  <p>Click Play to start</p>
-  <small>Press Esc to leave full screen.</small>
-  <div id="error"></div>
-</div>
+<!-- ============ Start screen ============ -->
+<section id="start">
+  <h1 id="title">Peekaboo</h1>
 
-<div id="board"></div>
-<canvas id="confetti"></canvas>
-<button id="restart" title="New round" hidden>&#x21bb;</button>
-<div id="cursor" hidden></div>
+  <div id="desktopnote" hidden>
+    <p><b>&#x1F4F1; Made for phones and tablets.</b></p>
+    <p>Open this page on a phone or tablet:<br><span id="pageurl"></span></p>
+    <button id="anyway" class="link">Try it here with a mouse anyway</button>
+  </div>
+
+  <div id="setcards"></div>
+
+  <p id="voicenote" hidden>
+    &#x1F507; Names aren't spoken in this version. Little ones learn best from a voice they know,
+    so the names are meant to be recorded by a parent in their own copy of the game
+    (see the project's README on GitHub).
+  </p>
+
+</section>
+
+<!-- ============ Game ============ -->
+<section id="game" hidden>
+  <div id="board"></div>
+  <button id="home" class="corner left hold" title="Press and hold to go back">&#x2302;</button>
+  <button id="restart" class="corner right" title="New round">&#x21bb;</button>
+  <canvas id="confetti"></canvas>
+</section>
 
 <script src="config.js"></script>
-<script src="config.local.js"></script><!-- optional, private: see config.local.example.js -->
-<script>
-// ---------- Settings (from config.js, with defaults for anything missing) ----------
-const DEFAULTS = {
-  title: 'Ball Peekaboo', circlesPerRound: 4,
-  colors: { background: '#bfe6ff', cover: '#7d5fe6', cursor: '#ffeb3b' },
-  balls: [
-    { name: 'Soccer ball', drawing: 'soccer' }, { name: 'Basketball', drawing: 'basketball' },
-    { name: 'Tennis ball', drawing: 'tennis' }, { name: 'American football', drawing: 'football' },
-  ],
-};
-const USER = typeof GAME_CONFIG === 'object' ? GAME_CONFIG : {};
-const CFG = {
-  ...DEFAULTS, ...USER,
-  colors:  { ...DEFAULTS.colors,  ...USER.colors },
-};
-const errors = [];
-if (typeof GAME_CONFIG !== 'object') errors.push('Could not read config.js (missing or has a typo), so the default balls are used.');
-if (!Array.isArray(CFG.balls) || CFG.balls.length === 0) { errors.push('No balls listed in config.js, so the default balls are used.'); CFG.balls = DEFAULTS.balls; }
-
-const root = document.documentElement.style;
-root.setProperty('--bg', CFG.colors.background);
-root.setProperty('--cover', CFG.colors.cover);
-root.setProperty('--cursor', CFG.colors.cursor);
-document.title = CFG.title;
-document.getElementById('title').textContent = CFG.title;
-
-// ---------- Built-in drawings ----------
-const svg = s => 'data:image/svg+xml,' + encodeURIComponent(`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">${s}</svg>`);
-const DRAWINGS = {
-  soccer: () => svg(`
-      <rect width="100" height="100" fill="#8fd16a"/>
-      <circle cx="50" cy="50" r="40" fill="#fff" stroke="#222" stroke-width="2"/>
-      <polygon points="50,36 63,45 58,60 42,60 37,45" fill="#222"/>
-      <g stroke="#222" stroke-width="2"><line x1="50" y1="36" x2="50" y2="11"/><line x1="63" y1="45" x2="87" y2="38"/>
-      <line x1="58" y1="60" x2="73" y2="81"/><line x1="42" y1="60" x2="27" y2="81"/><line x1="37" y1="45" x2="13" y2="38"/></g>
-      <path d="M44 11 L56 11 L50 18Z M87 32 L90 46 L84 42Z M78 78 L68 86 L70 79Z M22 78 L32 86 L30 79Z M13 32 L10 46 L16 42Z" fill="#222"/>`),
-  basketball: () => svg(`
-      <rect width="100" height="100" fill="#ffe7b0"/>
-      <circle cx="50" cy="50" r="40" fill="#f07c1d" stroke="#3a1d05" stroke-width="2.5"/>
-      <g fill="none" stroke="#3a1d05" stroke-width="2.5"><line x1="10" y1="50" x2="90" y2="50"/><line x1="50" y1="10" x2="50" y2="90"/>
-      <path d="M22 22 Q38 50 22 78"/><path d="M78 22 Q62 50 78 78"/></g>`),
-  tennis: () => svg(`
-      <rect width="100" height="100" fill="#4f9fe0"/>
-      <circle cx="50" cy="50" r="40" fill="#d7f53a" stroke="#9db51c" stroke-width="2"/>
-      <g fill="none" stroke="#fff" stroke-width="4"><path d="M18 26 Q40 50 18 74"/><path d="M82 26 Q60 50 82 74"/></g>`),
-  football: () => svg(`
-      <rect width="100" height="100" fill="#8fd16a"/>
-      <ellipse cx="50" cy="50" rx="42" ry="26" fill="#8b4513" stroke="#4a2408" stroke-width="2" transform="rotate(-25 50 50)"/>
-      <g stroke="#fff" stroke-width="3" transform="rotate(-25 50 50)"><line x1="34" y1="50" x2="66" y2="50"/>
-      <line x1="38" y1="44" x2="38" y2="56"/><line x1="44" y1="44" x2="44" y2="56"/><line x1="50" y1="44" x2="50" y2="56"/>
-      <line x1="56" y1="44" x2="56" y2="56"/><line x1="62" y1="44" x2="62" y2="56"/></g>`),
-  plain: (color = '#e63946') => svg(`
-      <defs><radialGradient id="g" cx="35%" cy="30%"><stop offset="0" stop-color="#fff" stop-opacity=".8"/>
-      <stop offset=".35" stop-color="#fff" stop-opacity="0"/></radialGradient></defs>
-      <rect width="100" height="100" fill="#fff6d6"/>
-      <circle cx="50" cy="50" r="40" fill="${color.replace(/[<>"&]/g, '')}"/><circle cx="50" cy="50" r="40" fill="url(#g)"/>`),
-};
-
-// Each ball shows its photo if it loads, otherwise its drawing, otherwise a plain ball.
-const BALLS = CFG.balls.filter(b => b && b.name).map(b => {
-  const draw = DRAWINGS[b.drawing] || DRAWINGS.plain;
-  if (b.drawing && !DRAWINGS[b.drawing]) errors.push(`"${b.name}": unknown drawing "${b.drawing}" (using a plain ball).`);
-  const ball = { name: String(b.name), focus: b.focus || '50% 50%', src: draw(b.color) };
-  if (b.photo) {
-    const img = new Image();
-    img.onload = () => { ball.src = img.src; refreshImages(); };
-    img.onerror = () => showError(`Photo not found for "${b.name}": ${b.photo}`);
-    img.src = b.photo;
-  }
-  return ball;
-});
-
-function showError(msg) { errors.push(msg); const el = document.getElementById('error'); if (el) el.textContent = errors.join('\n'); }
-document.getElementById('error').textContent = errors.join('\n');
-
-// ---------- Sound effects (soft, bell-like) ----------
-let audio, master;
-function initAudio() {
-  audio = new (window.AudioContext || window.webkitAudioContext)();   // browsers need a click before sound
-  master = audio.createGain(); master.gain.value = CFG.effectsVolume ?? 0.6;
-  const soften = audio.createBiquadFilter(); soften.type = 'lowpass'; soften.frequency.value = 3500;
-  master.connect(soften).connect(audio.destination);
-}
-// One soft note: quick fade-in (no click), gentle fade-out, plus a quiet overtone for a bell colour.
-function note(freq, start = 0, dur = 0.8, vol = 0.18, slideTo) {
-  if (!audio || CFG.effects === false) return;
-  const t = audio.currentTime + start;
-  [[1, vol], [2, vol * 0.25]].forEach(([mult, v]) => {
-    const o = audio.createOscillator(), g = audio.createGain();
-    o.type = 'sine'; o.frequency.setValueAtTime(freq * mult, t);
-    if (slideTo) o.frequency.exponentialRampToValueAtTime(slideTo * mult, t + dur * 0.6);
-    g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(v, t + 0.015);
-    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
-    o.connect(g).connect(master); o.start(t); o.stop(t + dur + 0.05);
-  });
-}
-const sounds = {
-  pop:     () => note(420, 0, 0.25, 0.22, 700),                                       // soft "bloop" when a ball appears
-  chime:   () => [784, 988, 1175].forEach((f, i) => note(f, i * 0.11, 1.0, 0.12)),   // little music-box run
-  fanfare: () => { [523, 659, 784, 1047, 1319].forEach((f, i) => note(f, i * 0.15, 1.2, 0.12));
-                   [523, 659, 784].forEach(f => note(f, 0.85, 2.0, 0.08)); },         // run up, then a warm chord
-};
-
-// ---------- Game ----------
-const board = document.getElementById('board');
-const cursor = document.getElementById('cursor');
-let slots = [], roundOver = false, hovered = null, roundTimer = null;
-
-function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
-
-// Arrange n circles in a grid that fits the screen, as big as possible.
-function layout(n) {
-  const cols = n <= 3 ? n : n === 4 ? 2 : 3;
-  const rows = Math.ceil(n / cols);
-  board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-  board.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-  root.setProperty('--size', `min(${84 / cols}vw, ${76 / rows}vh)`);
-}
-
-function newRound() {
-  clearTimeout(roundTimer);
-  roundOver = false; hovered = null;
-  const n = Math.max(1, Math.min(9, CFG.circlesPerRound | 0 || 4, BALLS.length));
-  layout(n);
-  board.innerHTML = '';
-  slots = shuffle([...BALLS]).slice(0, n).map(ball => {
-    const el = document.createElement('div');
-    el.className = 'slot';
-    el.innerHTML = '<div class="ball"></div><div class="cover"></div><div class="label"></div>';
-    el.querySelector('.label').textContent = ball.name;
-    board.appendChild(el);
-    const s = { el, ball, kept: false };
-    setImage(s);
-    return s;
-  });
-}
-function setImage(s) {
-  const b = s.el.firstChild;
-  b.style.backgroundImage = `url("${s.ball.src}")`;
-  b.style.backgroundPosition = s.ball.focus;
-}
-function refreshImages() { slots.forEach(setImage); }
-
-// Which circle is the cursor over? The hit area is 15% bigger than the circle (forgiving aim).
-function slotAt(x, y) {
-  return slots.find(s => {
-    const r = s.el.getBoundingClientRect();
-    return Math.hypot(x - (r.left + r.width / 2), y - (r.top + r.height / 2)) <= (r.width / 2) * 1.15;
-  });
-}
-
-function onMove(x, y) {
-  cursor.style.transform = `translate(${x}px, ${y}px)`;
-  const s = slotAt(x, y);
-  if (s === hovered) return;
-  if (hovered && !hovered.kept) hovered.el.classList.remove('open');
-  hovered = s;
-  cursor.classList.toggle('big', !!s);
-  if (s && !s.kept) {
-    s.el.classList.add('open');
-    sounds.pop();
-  }
-}
-
-function cheer(s) { s.el.classList.remove('cheer'); void s.el.offsetWidth; s.el.classList.add('cheer'); }
-
-function onClick(x, y) {
-  if (roundOver) return;
-  const s = slotAt(x, y);
-  if (!s) return;
-  if (!s.kept) {
-    s.kept = true; s.el.classList.add('kept', 'open');
-    sounds.chime(); cheer(s);
-    if (slots.every(t => t.kept)) celebrate();
-  } else {
-    sounds.pop(); cheer(s);
-  }
-}
-
-function celebrate() {
-  roundOver = true;
-  setTimeout(() => { sounds.fanfare(); confetti(4000); }, 900);
-  roundTimer = setTimeout(newRound, 6500);
-}
-
-// ---------- Confetti ----------
-const cv = document.getElementById('confetti'), ctx = cv.getContext('2d');
-function confetti(ms) {
-  cv.width = innerWidth; cv.height = innerHeight;
-  const colors = ['#ff595e', '#ffca3a', '#8ac926', '#1982c4', '#6a4c93', '#ff924c'];
-  const bits = Array.from({ length: 220 }, () => ({
-    x: Math.random() * cv.width, y: -Math.random() * cv.height,
-    vx: (Math.random() - .5) * 3, vy: 2 + Math.random() * 4,
-    s: 8 + Math.random() * 10, c: colors[Math.floor(Math.random() * colors.length)],
-    a: Math.random() * 6, va: (Math.random() - .5) * .3,
-  }));
-  const end = performance.now() + ms;
-  (function frame(now) {
-    ctx.clearRect(0, 0, cv.width, cv.height);
-    if (now > end) return;
-    bits.forEach(b => {
-      b.x += b.vx; b.y += b.vy; b.a += b.va;
-      if (b.y > cv.height) b.y = -20;
-      ctx.save(); ctx.translate(b.x, b.y); ctx.rotate(b.a);
-      ctx.fillStyle = b.c; ctx.fillRect(-b.s / 2, -b.s / 4, b.s, b.s / 2); ctx.restore();
-    });
-    requestAnimationFrame(frame);
-  })(performance.now());
-}
-
-// ---------- Wiring ----------
-addEventListener('mousemove', e => onMove(e.clientX, e.clientY));
-addEventListener('mousedown', e => onClick(e.clientX, e.clientY));
-addEventListener('contextmenu', e => e.preventDefault());
-document.getElementById('restart').addEventListener('click', e => {
-  e.currentTarget.blur(); newRound(); sounds.pop();
-});
-
-document.querySelector('#start .go').addEventListener('click', () => {
-  initAudio();
-  document.documentElement.requestFullscreen?.().catch(() => {});
-  document.getElementById('start').remove();
-  cursor.hidden = false;
-  document.getElementById('restart').hidden = false;
-  newRound();
-}, { once: true });
-</script>
+<script src="app.js"></script>
 </body>
 </html>
