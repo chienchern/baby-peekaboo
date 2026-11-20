@@ -29,10 +29,12 @@
   <div id="setcards"></div>
 
   <p id="voicenote" hidden>
-    &#x1F507; Names aren't spoken in this version. Little ones learn best from a voice they know,
-    so the names are meant to be recorded by a parent in their own copy of the game
-    (see the project's README on GitHub).
+    &#x1F507; Names aren't spoken until a grown-up records them. Little ones learn best from a voice
+    they know, so you can add your own photos and record each name in your own voice:
+    press and hold <b>Grown-ups</b> below.
   </p>
+
+  <button id="grownups" class="hold" title="Press and hold">&#x2699; Hold for grown-ups</button>
 
 </section>
 
@@ -44,7 +46,60 @@
   <canvas id="confetti"></canvas>
 </section>
 
+<!-- ============ Grown-ups setup ============ -->
+<section id="setup" hidden>
+  <header>
+    <h1>Grown-ups</h1>
+    <button id="setupdone" class="primary">Done</button>
+  </header>
+
+  <p id="nosave" class="warn" hidden>This browser can't save (private browsing?). Changes will be lost when you close it.</p>
+
+  <div id="settabs"></div>
+  <div id="setbar">
+    <button id="renameset">&#x270E; Rename set</button>
+    <button id="deleteset" class="danger">&#x1F5D1; Delete set</button>
+  </div>
+
+  <ul id="items"></ul>
+  <button id="additem" class="primary big">+ Add a photo</button>
+
+  <div class="card">
+    <h2>Back up</h2>
+    <p>Your photos and recordings are saved <b>only on this device</b>, in this browser. Nothing is uploaded.
+       Save a backup file to keep them safe, or to copy them to another phone or tablet.</p>
+    <div class="row">
+      <button id="backup">&#x2B07; Save backup file</button>
+      <button id="restore">&#x2B06; Restore from backup</button>
+    </div>
+    <p id="backupstatus" class="status"></p>
+  </div>
+
+  <div id="builtins"></div>
+
+  <p class="note">Tip: add this page to your home screen (iPhone/iPad: Share &rarr; Add to Home Screen) so it opens
+     full screen, and so the browser keeps your photos safe.</p>
+
+  <input type="file" id="photopick" accept="image/*" hidden>
+  <input type="file" id="backuppick" hidden>
+</section>
+
+<!-- ============ Photo cropper ============ -->
+<div id="cropper" class="modal" hidden>
+  <div class="sheet">
+    <h2>Drag and zoom to fit the circle</h2>
+    <canvas id="cropcanvas" width="600" height="600"></canvas>
+    <label class="zoom">&#x2796; <input type="range" id="cropzoom" min="1" max="4" step="0.01" value="1"> &#x2795;</label>
+    <label id="cropnamewrap" class="field">Name <input id="cropname" type="text" placeholder="e.g. Grandma" autocomplete="off" maxlength="40"></label>
+    <div class="row">
+      <button id="cropcancel">Cancel</button>
+      <button id="cropok" class="primary">Save</button>
+    </div>
+  </div>
+</div>
+
 <script src="config.js"></script>
 <script src="app.js"></script>
+<script src="setup.js"></script>
 </body>
 </html>

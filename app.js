@@ -9,9 +9,55 @@ const DEFAULTS = {
 };
 const USER = typeof GAME_CONFIG === 'object' ? GAME_CONFIG : {};
 const CFG = { ...DEFAULTS, ...USER, colors: { ...DEFAULTS.colors, ...USER.colors } };
-const SETS = (Array.isArray(CFG.sets) ? CFG.sets : [])
-  .map(s => ({ name: String(s.name || 'Pictures'), items: (s.items || []).filter(i => i && i.name && i.picture) }))
-  .filter(s => s.items.length);
+
+// ============ Saved sets (this device only) ============
+// Sets, photos and recordings live in this browser's storage (IndexedDB). Nothing is uploaded.
+// The first time the game opens on a device, it starts with the sets from config.js.
+const Store = (() => {
+  let dbp = null;
+  const db = () => dbp || (dbp = new Promise((ok, fail) => {
+    const r = indexedDB.open('peekaboo', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('kv');
+    r.onsuccess = () => ok(r.result); r.onerror = () => fail(r.error);
+  }));
+  const get = async key => { const d = await db(); return new Promise((ok, fail) => {
+    const q = d.transaction('kv').objectStore('kv').get(key); q.onsuccess = () => ok(q.result); q.onerror = () => fail(q.error); }); };
+  const put = async (key, val) => { const d = await db(); return new Promise((ok, fail) => {
+    const tx = d.transaction('kv', 'readwrite'); tx.objectStore('kv').put(val, key);
+    tx.oncomplete = () => ok(); tx.onerror = tx.onabort = () => fail(tx.error); }); };
+  return { get, put };
+})();
+const uid = () => Math.random().toString(36).slice(2, 10);
+let SETS = [];          // [{ id, name, items: [{ id, name, picture: Blob|path, sound: Blob|path|null }] }]
+let canSave = true;
+
+function configSets() {
+  return (Array.isArray(CFG.sets) ? CFG.sets : []).map(s => ({
+    id: uid(), name: String(s.name || 'Pictures'),
+    items: (s.items || []).filter(i => i && i.name && i.picture).map(i => ({
+      id: uid(), name: String(i.name), picture: i.picture, sound: (CFG.speakNames && i.sound) || null })),
+  }));
+}
+async function loadSets() {
+  try {
+    const saved = await Store.get('sets');
+    if (Array.isArray(saved)) { SETS = saved; return; }
+    SETS = configSets(); await Store.put('sets', SETS);
+  } catch (e) { canSave = false; SETS = configSets(); }
+}
+async function saveSets() {
+  if (!canSave) return;
+  try { await Store.put('sets', SETS); navigator.storage?.persist?.().catch(() => {}); }
+  catch (e) { alert('Sorry, this could not be saved on this device: ' + e.message); }
+}
+// Something an <img>/background can show: a file path as-is, or a temporary link to a saved photo.
+const blobLinks = new WeakMap();
+function srcOf(x) {
+  if (!x) return '';
+  if (typeof x === 'string') return x;
+  let u = blobLinks.get(x); if (!u) { u = URL.createObjectURL(x); blobLinks.set(x, u); }
+  return u;
+}
 
 const $ = id => document.getElementById(id);
 const root = document.documentElement.style;
@@ -53,27 +99,29 @@ const sounds = {
                    [523, 659, 784].forEach(f => note(f, 0.85, 2.0, 0.08)); },         // round complete
 };
 
-// ============ Recorded names (only when speakNames is true) ============
-const voiceBuffers = new Map();   // sound path -> decoded audio
+// ============ Recorded names ============
+// Each item's recording (made in the Grown-ups screen, or a file named in config.js).
+const voicePaths = new Map(), voiceBlobs = new WeakMap();   // recording -> decoded audio
 let voiceSrc = null;
-function loadVoices(set) {
-  if (!CFG.speakNames || !ctx) return;
-  set.items.forEach(item => {
-    if (!item.sound || voiceBuffers.has(item.sound)) return;
-    voiceBuffers.set(item.sound, null);
-    fetch(item.sound).then(r => r.arrayBuffer())
-      .then(data => new Promise((ok, fail) => ctx.decodeAudioData(data, ok, fail)))
-      .then(buf => voiceBuffers.set(item.sound, buf))
-      .catch(() => console.warn('Could not load recording:', item.sound));
-  });
+const decodeAudio = data => new Promise((ok, fail) => ctx.decodeAudioData(data, ok, fail));
+async function getVoice(sound) {
+  if (!sound || !ctx) return null;
+  const cache = typeof sound === 'string' ? voicePaths : voiceBlobs;
+  if (cache.has(sound)) return cache.get(sound);
+  const p = (typeof sound === 'string' ? fetch(sound).then(r => r.arrayBuffer()) : sound.arrayBuffer())
+    .then(decodeAudio).catch(() => { console.warn('Could not load a recording'); return null; });
+  cache.set(sound, p);
+  return p;
 }
-function sayName(item, delay = 0) {
-  const buf = CFG.speakNames && item.sound && voiceBuffers.get(item.sound);
+function loadVoices(set) { set.items.forEach(item => getVoice(item.sound)); }
+async function playVoice(sound, delay = 0) {
+  const buf = await getVoice(sound);
   if (!buf) return;
   stopVoice();
   const s = ctx.createBufferSource(); s.buffer = buf; s.connect(voiceOut);
   s.start(ctx.currentTime + delay); voiceSrc = s;
 }
+function sayName(item, delay = 0) { if (item.sound) playVoice(item.sound, delay); }
 function stopVoice() { if (voiceSrc) { try { voiceSrc.stop(); } catch (e) {} voiceSrc = null; } }
 
 // ============ Start screen ============
@@ -81,28 +129,33 @@ const isTouchDevice = matchMedia('(any-pointer: coarse)').matches || navigator.m
 
 function renderStart() {
   const cards = $('setcards'); cards.innerHTML = '';
-  SETS.forEach(set => {
+  SETS.filter(set => set.items.length).forEach(set => {
     const card = document.createElement('button');
     card.className = 'setcard';
     const thumbs = document.createElement('div'); thumbs.className = 'thumbs';
     set.items.slice(0, 4).forEach(item => {
-      const t = document.createElement('span'); t.style.backgroundImage = `url("${item.picture}")`; thumbs.appendChild(t);
+      const t = document.createElement('span'); t.style.backgroundImage = `url("${srcOf(item.picture)}")`; thumbs.appendChild(t);
     });
     const label = document.createElement('b'); label.textContent = set.name;
     card.append(thumbs, label);
     card.addEventListener('click', () => startGame(set));
     cards.appendChild(card);
   });
-  if (!SETS.length) cards.textContent = 'No pictures are set up in config.js.';
+  if (!cards.children.length) cards.textContent = 'No pictures yet. Press and hold Grown-ups to add some.';
+  $('voicenote').hidden = SETS.some(s => s.items.some(i => i.sound));
 }
-renderStart();
-$('voicenote').hidden = !!CFG.speakNames;
-if (!isTouchDevice) {
-  $('desktopnote').hidden = false;
-  $('setcards').hidden = true;
+let triedAnyway = false;
+function showStart() {
+  renderStart();
+  const blocked = !isTouchDevice && !triedAnyway;
+  $('desktopnote').hidden = !blocked;
+  $('setcards').hidden = $('grownups').hidden = blocked;
+  if (blocked) $('voicenote').hidden = true;
   $('pageurl').textContent = location.href.split('#')[0];
+  $('setup').hidden = $('game').hidden = true; $('start').hidden = false;
 }
-$('anyway').addEventListener('click', () => { $('setcards').hidden = false; $('anyway').hidden = true; });
+$('anyway').addEventListener('click', () => { triedAnyway = true; showStart(); });
+loadSets().then(showStart);
 
 // Press-and-hold buttons (so a toddler doesn't leave the game by accident)
 function holdButton(el, ms, action) {
@@ -133,7 +186,7 @@ function startGame(set) {
 }
 function goHome() {
   playing = false; clearTimeout(roundTimer); stopVoice(); pointers.clear();
-  $('game').hidden = true; $('start').hidden = false;
+  showStart();
   wakeLock?.release?.().catch(() => {}); wakeLock = null;
 }
 async function keepAwake() { try { wakeLock = await navigator.wakeLock?.request('screen'); } catch (e) {} }
@@ -165,7 +218,7 @@ function newRound() {
     const el = document.createElement('div');
     el.className = 'slot';
     el.innerHTML = '<div class="pic"></div><div class="cover"></div><div class="label"></div>';
-    el.querySelector('.pic').style.backgroundImage = `url("${item.picture}")`;
+    el.querySelector('.pic').style.backgroundImage = `url("${srcOf(item.picture)}")`;
     el.querySelector('.label').textContent = item.name;
     board.appendChild(el);
     return { el, item, kept: false, open: false, lastSaid: 0, nameTimer: null };

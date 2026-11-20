@@ -9,7 +9,7 @@ A simple touch game for toddlers, made for phones and tablets. Big solid circles
 
 It comes with two sets: **Balls** and **Family** (Mommy, Daddy, Grandma, Grandpa), all drawings.
 
-**Play it:** https://chienchern.github.io/baby-ball-peekaboo/
+**Play it:** https://chienchern.github.io/baby-peekaboo/
 
 ## On a phone or tablet
 
@@ -24,36 +24,28 @@ In the game, the ↻ button (top right) starts a new round. To go back to the st
 
 On a computer, the start screen explains the game is meant for touch devices, but you can still try it with a mouse.
 
-## Why the names aren't spoken
+## Add your own photos and voice
 
-Little ones respond best to a voice they know, and computer voices sound robotic. So names are shown as text, and spoken names are meant for a parent's own copy, recorded in their own voice.
+Little ones respond best to faces and voices they know, so names aren't spoken until a grown-up records them.
 
-## Make your own copy (with your photos and voice)
+On the start screen, **press and hold ⚙ Grown-ups** (about 1.5 seconds, so toddlers can't wander in). There you can:
 
-1. Fork or download this project.
-2. Put your pictures in the `pictures` folder. Square photos with the face or object in the middle and a little space around it work best.
-3. Record each name (a phone's voice memo app is fine) and put the files in a `sounds` folder.
-4. Edit `config.js`:
+- **Make a set**, e.g. "Family", "Toys" or "Animals".
+- **Add a photo** from the camera roll (or take one), then drag and zoom it to fit the circle and type a name.
+- **Record the name** with the phone or tablet's microphone. Silence is trimmed and the volume evened out automatically. The name plays when the picture is revealed, and again after the chime when it's tapped.
+- **Record names for the built-in drawings** too, change photos, rename, or delete.
 
-   ```js
-   speakNames: true,
-   sets: [
-     {
-       name: "Family",
-       items: [
-         { name: "Grandma", picture: "pictures/grandma.jpg", sound: "sounds/grandma.m4a" },
-       ],
-     },
-   ],
-   ```
+**Everything stays on that device**, in its browser. Nothing is uploaded, so each phone or tablet is set up separately.
 
-   With `speakNames: true`, a name plays when its picture appears, and again after the chime when it's tapped.
+### Back up and restore
 
-5. Host it somewhere private and open it on your phone or tablet. Recordings only play when the game is served from a website, not when the file is opened directly.
+In the Grown-ups screen, **Save backup file** creates one file with all your sets, photos and recordings. Save it to Files, Google Drive, AirDrop, etc. **Restore from backup** loads it on another device, or after the browser's data has been cleared.
 
-**Keep personal photos and recordings out of public repositories.**
+On iPhone/iPad, add the game to your home screen: Safari may clear a website's saved data if it isn't used for a while, but home-screen apps are kept.
 
-`config.js` also sets the number of circles per round, the colours and the volume of the sound effects.
+## Settings
+
+`config.js` sets the number of circles per round, the colours, the volume of the sound effects, and the sets a device starts with the first time the game opens there.
 
 ## License
 
