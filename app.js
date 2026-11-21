@@ -268,9 +268,11 @@ function hideIfUntouched(s) {
 }
 function cheer(s) { s.el.classList.remove('cheer'); void s.el.offsetWidth; s.el.classList.add('cheer'); }
 
-// Finger lifted on a circle = tap: keep it revealed, chime, then say the name.
-function tap(s) {
+// A finger touching a circle (tapping it, or sliding onto it): keep it revealed, chime, then say the name.
+// Touching one that's already revealed bounces it and says the name again.
+function tap(s, slid = false) {
   if (roundOver) return;
+  if (s.kept && slid && Date.now() - s.lastSaid < 800) return;   // don't repeat while a finger wiggles back and forth
   clearTimeout(s.nameTimer); s.lastSaid = Date.now();
   if (!s.kept) {
     s.kept = s.open = true; s.el.classList.add('kept', 'open');
@@ -286,24 +288,28 @@ function celebrate() {
   roundTimer = setTimeout(() => playing && newRound(), 6500);
 }
 
-function moveTo(id, x, y) {
+// Fingers: touching or sliding onto a circle keeps it straight away.
+// Mouse (computers): hovering peeks, clicking keeps.
+function moveTo(id, x, y, type, down) {
   const s = slotAt(x, y) || null, prev = pointers.get(id) || null;
   if (pointers.has(id) && s === prev) return;
   pointers.set(id, s);
   if (prev) hideIfUntouched(prev);
-  if (s) reveal(s);
+  if (!s) return;
+  if (type === 'mouse') reveal(s);
+  else tap(s, !down);
 }
 const ignore = e => !playing || e.target.closest('button');
-addEventListener('pointerdown', e => { if (ignore(e)) return; moveTo(e.pointerId, e.clientX, e.clientY); });
+addEventListener('pointerdown', e => { if (ignore(e)) return; moveTo(e.pointerId, e.clientX, e.clientY, e.pointerType, true); });
 addEventListener('pointermove', e => {
   if (!playing) return;
   if (e.pointerType !== 'mouse' && !pointers.has(e.pointerId)) return;   // fingers count only while touching
-  moveTo(e.pointerId, e.clientX, e.clientY);
+  moveTo(e.pointerId, e.clientX, e.clientY, e.pointerType, false);
 });
 addEventListener('pointerup', e => {
   if (!playing || !pointers.has(e.pointerId)) return;
   const s = pointers.get(e.pointerId);
-  if (e.pointerType !== 'mouse') pointers.delete(e.pointerId);
+  if (e.pointerType !== 'mouse') { pointers.delete(e.pointerId); return; }   // fingers already kept it on touch
   if (s) tap(s);
 });
 addEventListener('pointercancel', e => {

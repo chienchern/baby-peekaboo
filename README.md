@@ -2,9 +2,8 @@
 
 A simple touch game for toddlers, made for phones and tablets. Big solid circles hide pictures.
 
-- **Touch a circle** (or slide a finger onto it) and the picture underneath pops into view with its name.
-- **Slide away** and the circle closes again.
-- **Tap** and the picture stays revealed with a chime.
+- **Touch a circle**, or slide a finger onto it, and the picture underneath pops into view and stays, with a chime and its name.
+- **Slide across several** in one go to reveal them all.
 - **Reveal them all** and there's a celebration, then a new round with the pictures shuffled.
 
 It comes with two sets: **Balls** and **Family** (Mommy, Daddy, Grandma, Grandpa), all drawings.
